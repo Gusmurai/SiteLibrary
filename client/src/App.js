@@ -20,11 +20,24 @@ function App() {
   // Состояние для хранения контактной информации библиотеки
   const [footerInfo, setFooterInfo] = useState(null);
 
-  // Функция динамического вывода общих данных библиотеки в подвал сайта
-  useEffect(() => {
+  // Функция динамического вывода данных о библиотеке из базы данных
+  const fetchFooterData = () => {
     axios.get('http://library-site.ru/api/library_info.php')
       .then(res => setFooterInfo(res.data))
       .catch(err => console.error("Ошибка загрузки подвала", err));
+  };
+
+  // Первичная загрузка данных и настройка автоматического обновления информации
+  useEffect(() => {
+    // Начальный вывод данных при загрузке сайта
+    fetchFooterData(); 
+
+    // Функция прослушивания системного события об обновлении информации
+    // Это позволяет подвалу мгновенно обновиться, когда админ сохраняет настройки
+    window.addEventListener('libraryInfoUpdated', fetchFooterData);
+
+    // Удаление слушателя при размонтировании компонента для оптимизации памяти
+    return () => window.removeEventListener('libraryInfoUpdated', fetchFooterData);
   }, []);
 
   // Функция очистки сессии пользователя и перенаправления на страницу ввода данных
@@ -75,7 +88,7 @@ function App() {
           </Routes>
         </main>
 
-        {/* Динамический подвал с актуальной информацией из базы данных: телефон, адрес */}
+        {/* Динамический вывод контактных данных в подвале сайта */}
         <footer className="app-footer">
           <p>&copy; 2025 {footerInfo ? footerInfo.library_name : 'Городская библиотека'}. Все права защищены.</p>
           {footerInfo && (

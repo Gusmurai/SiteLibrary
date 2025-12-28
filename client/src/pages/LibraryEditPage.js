@@ -39,9 +39,18 @@ const LibraryEditPage = () => {
         e.preventDefault();
         try {
             const res = await axios.post('http://library-site.ru/api/library_info.php', info);
-            if (res.data.status === 'success') { alert('Настройки сохранены!'); } 
-            else { alert('Ошибка сохранения'); }
-        } catch (error) { alert('Ошибка сети'); }
+            if (res.data.status === 'success') {
+                
+                // === ОТПРАВЛЯЕМ СИГНАЛ ОБ ОБНОВЛЕНИИ ===
+                window.dispatchEvent(new Event('libraryInfoUpdated'));
+                
+                alert('Настройки сохранены!');
+            } else {
+                alert('Ошибка сохранения');
+            }
+        } catch (error) {
+            alert('Ошибка сети');
+        }
     };
 
     return (
